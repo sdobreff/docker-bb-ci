@@ -7,10 +7,9 @@ RUN curl -sS -L https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar -o /phpcs
 	&& chmod +x /phpcs.phar \
 	&& mv /phpcs.phar /usr/bin/phpcs
 
-RUN curl -sS -L https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar -o /phpcbf.phar \
-	&& chmod +x /phpcbf.phar \
-	&& mv /phpcbf.phar /usr/bin/phpcbf
-
 RUN git clone -b master https://github.com/sdobreff/wp-coding-standards.git wpcs \
 	&& phpcs --config-set installed_paths /app/wpcs
 
+RUN curl -sS -L https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar -o /phpcbf.phar \
+	&& chmod +x /phpcbf.phar \
+	&& mv /phpcbf.phar /usr/bin/phpcbf
