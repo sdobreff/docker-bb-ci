@@ -29,3 +29,7 @@ RUN curl -sS -L https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar -o /phpc
 RUN curl -sS -L https://phpmd.org/static/latest/phpmd.phar -o /phpmd.phar \
 	&& chmod +x /phpmd.phar \
 	&& mv /phpmd.phar /usr/bin/phpmd
+
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
+	&& chmod +x wp-cli.phar \
+	&& mv wp-cli.phar /usr/bin/wp
