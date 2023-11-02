@@ -132,7 +132,6 @@ RUN service mysql start && \
 	sed -i '2s/^/$_SERVER["HTTPS"]="on";\n/' wp-config.php && \
 	wp --allow-root plugin delete hello && \
 	wp --allow-root plugin delete akismet && \
-	wp --allow-root plugin install wp-data-access --activate && \
 	wp --allow-root plugin install wp-mail-smtp --activate && \
 	wp --allow-root option update wp_mail_smtp '{"mail":{"from_email":"test@test.com","from_name":"test","mailer":"smtp","return_path":false,"from_email_force":true,"from_name_force":false},"smtp":{"autotls":true,"auth":true,"host":"127.0.0.1","encryption":"none","port":1025,"user":"","pass":"hmObKRZigL8FgPnzxqqC6GrVCQ2UB2CNa37s+5QmOQB2coXVptVSxw=="},"general":{"summary_report_email_disabled":false},"sendlayer":{"api_key":""},"smtpcom":{"api_key":"","channel":""},"sendinblue":{"api_key":"","domain":""},"gmail":{"client_id":"","client_secret":""},"mailgun":{"api_key":"","domain":"","region":"US"},"postmark":{"server_api_token":"","message_stream":""},"sendgrid":{"api_key":"","domain":""},"sparkpost":{"api_key":"","region":"US"}}' --format=json
 
@@ -151,7 +150,6 @@ RUN service mysql start && \
 	wp --allow-root config set FS_METHOD direct && \
 	wp --allow-root plugin delete hello && \
 	wp --allow-root plugin delete akismet && \
-	wp --allow-root plugin install wp-data-access --activate && \
 	wp --allow-root plugin install wp-mail-smtp --activate && \
 	sed -i 's/'\''some-multi'\''/\$_SERVER\["HTTP_HOST"\]/g' wp-config.php && \
 	sed -i '2s/^/$_SERVER["HTTPS"]="on";\n/' wp-config.php && \
