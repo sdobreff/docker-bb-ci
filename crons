@@ -1,0 +1,2 @@
+*/1 * * * * /usr/bin/php /var/www/html/wp-cron.php > /dev/null 2
+*/1 * * * * /usr/bin/php /var/www/html-multi/wp-cron.php > /dev/null 2
