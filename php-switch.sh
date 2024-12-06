@@ -8,7 +8,7 @@ switchTo7()
    sudo cp /etc/nginx/sites-available/default-multi-7.2 /etc/nginx/sites-available/default-multi
    sudo cp /etc/nginx/sites-available/default-7.2 /etc/nginx/sites-available/default
 
-   sudo service php8.2-fpm stop;
+   sudo service php8.3-fpm stop;
    sudo service php7.2-fpm start;
    sudo service nginx restart;
 
@@ -18,13 +18,13 @@ switchTo7()
 switchTo8()
 {
    echo ""
-   sudo update-alternatives --set php /usr/bin/php8.2
+   sudo update-alternatives --set php /usr/bin/php8.3
 
-   sudo cp /etc/nginx/sites-available/default-multi-8.2 /etc/nginx/sites-available/default-multi
-   sudo cp /etc/nginx/sites-available/default-8.2 /etc/nginx/sites-available/default
+   sudo cp /etc/nginx/sites-available/default-multi-8.3 /etc/nginx/sites-available/default-multi
+   sudo cp /etc/nginx/sites-available/default-8.3 /etc/nginx/sites-available/default
 
    sudo service php7.2-fpm stop;
-   sudo service php8.2-fpm start;
+   sudo service php8.3-fpm start;
    sudo service nginx restart;
 
    exit 1 # Exit script after printing help

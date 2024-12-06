@@ -1,7 +1,6 @@
-FROM ubuntu:latest
+FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive 
-
 
 #install some base extensions
 RUN apt-get update -y --fix-missing && \
@@ -26,7 +25,7 @@ RUN apt-get update -y --fix-missing && \
 RUN add-apt-repository ppa:ondrej/php && \
 	apt update -y
 
-RUN apt install -y php8.2 php8.2-fpm php8.2-cli php8.2-mysqlnd php8.2-zip php8.2-pdo php8.2-gd php8.2-mbstring php8.2-curl php8.2-xml php8.2-bcmath php8.2-fileinfo php8.2-intl php8.2-xdebug
+RUN apt install -y php8.3 php8.3-fpm php8.3-cli php8.3-mysqlnd php8.3-zip php8.3-pdo php8.3-gd php8.3-mbstring php8.3-curl php8.3-xml php8.3-bcmath php8.3-fileinfo php8.3-intl php8.3-xdebug
 
 RUN apt install -y php7.2 php7.2-fpm php7.2-cli php7.2-mysqlnd php7.2-zip php7.2-pdo php7.2-gd php7.2-mbstring php7.2-curl php7.2-xml php7.2-bcmath php7.2-json php7.2-fileinfo php7.2-intl php7.2-xdebug
 
@@ -76,13 +75,13 @@ RUN go env -w GO111MODULE=off
 
 RUN go get github.com/mailhog/MailHog && \
 	go get github.com/mailhog/mhsendmail && \
+	#go get github.com/glotlabs/gdrive && \
 	cp $GOPATH/bin/MailHog /usr/local/bin/mailhog && \
 	cp $GOPATH/bin/mhsendmail /usr/local/bin/mhsendmail && \
 	ln $GOPATH/bin/mhsendmail /usr/sbin/sendmail && \
-	ln $GOPATH/bin/mhsendmail /usr/bin/mail && \
-	go get github.com/prasmussen/gdrive && \
-	cp $GOPATH/bin/gdrive /usr/local/bin/gdrive && \
-	ln $GOPATH/bin/gdrive /usr/sbin/gdrive
+	ln $GOPATH/bin/mhsendmail /usr/bin/mail
+	# cp $GOPATH/bin/gdrive /usr/local/bin/gdrive && \
+	# ln $GOPATH/bin/gdrive /usr/sbin/gdrive
 
 ### WP-CLI ###
 RUN wget -q https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -O $HOME/wp-cli.phar && \
@@ -100,25 +99,24 @@ EXPOSE 1025/tcp
 
 COPY default /etc/nginx/sites-available/default
 COPY default-multi /etc/nginx/sites-available/default-multi
-COPY default /etc/nginx/sites-available/default-8.2
-COPY default-multi /etc/nginx/sites-available/default-multi-8.2
+COPY default /etc/nginx/sites-available/default-8.3
+COPY default-multi /etc/nginx/sites-available/default-multi-8.3
 COPY default-7.2 /etc/nginx/sites-available/default-7.2
 COPY default-multi-7.2 /etc/nginx/sites-available/default-multi-7.2
 
 COPY mysql_wordpress.sql $HOME/mysql_wordpress.sql
 
-COPY xdebug.ini /etc/php/8.2/fpm/conf.d/20-xdebug.ini
+COPY xdebug.ini /etc/php/8.3/fpm/conf.d/20-xdebug.ini
 COPY xdebug.ini /etc/php/7.2/fpm/conf.d/20-xdebug.ini
-COPY php.ini /etc/php/8.2/fpm/php.ini
+COPY php.ini /etc/php/8.3/fpm/php.ini
 COPY php.ini /etc/php/7.2/fpm/php.ini
 
 # COPY bashrc $HOME/.bashrc
-
 RUN service mysql start && \
-	mysql -u root < $HOME/mysql_wordpress.sql && \
 	cd /var/www/html && \
+	mysql -u root < $HOME/mysql_wordpress.sql && \
 	wp --allow-root core download && \
-	wp --allow-root config create --dbname=wordpress --dbuser=wordpress --dbpass=password --dbhost=127.0.0.1 && \
+	wp --allow-root config create --dbname=wordpress --dbuser=wordpress --dbpass=password --dbhost=127.0.0.1 --dbprefix=gitpod_ && \
 	wp --allow-root core install --url=some --title=test --admin_user=admin --admin_email=test@test.com --admin_password=password && \
 	chown -R www-data:www-data /var/www/html && \
 	wp --allow-root config set WP_HOME "https://".\$_SERVER['HTTP_HOST'] --raw && \
@@ -141,7 +139,7 @@ RUN service mysql start && \
 	mkdir /var/www/html-multi && \
 	cd /var/www/html-multi && \
 	wp --allow-root core download && \
-	wp --allow-root config create --dbname=wordpress-multi --dbuser=wordpress --dbpass=password --dbhost=127.0.0.1 && \
+	wp --allow-root config create --dbname=wordpress-multi --dbuser=wordpress --dbpass=password --dbhost=127.0.0.1 --dbprefix=gitpod_ && \
 	wp --allow-root core multisite-install --url=some-multi --title=test --admin_user=admin --admin_email=test@test.com --admin_password=password && \
 	chown -R www-data:www-data /var/www/html-multi && \
 	wp --allow-root config set WP_DEBUG true --raw && \
@@ -190,7 +188,17 @@ RUN chmod +x $HOME/php-switch.sh \
 	&& chmod +x $HOME/restore-wordpress.sh \
 	&& mv $HOME/restore-wordpress.sh /usr/bin/restore-wordpress
 
-ENTRYPOINT service php8.2-fpm start && /bin/bash
+# Gdrive installation
+RUN apt-get purge golang* -y
+RUN wget https://go.dev/dl/go1.21.3.linux-amd64.tar.gz
+RUN tar -C /usr/local -xzf go1.21.3.linux-amd64.tar.gz
+RUN update-alternatives --install "/usr/bin/go" "go" "/usr/local/go/bin/go" 0
+RUN update-alternatives --set go /usr/local/go/bin/go
+RUN go get github.com/prasmussen/gdrive
+RUN cp $GOPATH/bin/gdrive /usr/local/bin/gdrive && \
+	ln $GOPATH/bin/gdrive /usr/sbin/gdrive
+
+ENTRYPOINT service php8.3-fpm start && /bin/bash
 
 EXPOSE 81/tcp
 # CMD ["/usr/sbin/nginx -g 'daemon off;'"]
